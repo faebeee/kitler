@@ -3,6 +3,9 @@ var config = {
     'port' : process.env.PORT||3000
 };
 
+var flickr = new Flickr({
+  api_key: "fc9228d0f911430403a814d59edaf13b"
+});
 
 var http = require('http');
 var request = require('request');
