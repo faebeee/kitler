@@ -1,0 +1,18 @@
+{
+  "name": "kittler",
+  "version": "0.1",
+  "description": "Cats that look like hitler placeholderimages",
+  "author": "Faebeee <faebeee(at)gmail.com>",
+  "main": "kittler.js",
+  "repository": {
+      "type": "git",
+      "url": "https://github.com/faebeee/kittler.git"
+  },
+
+  "dependencies": {
+    "request": "*",
+    "express": "*",
+    "lwip": "*",
+  },
+  "private": true,
+}
