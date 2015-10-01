@@ -1,5 +1,6 @@
 var config = {
-    "url" : "http://www.catsthatlooklikehitler.com/kitler/pics/kitler"
+    "url" : "http://www.catsthatlooklikehitler.com/kitler/pics/kitler",
+    'port' : process.env.PORT||8000
 };
 
 
@@ -41,7 +42,7 @@ app.all("/img/*/*", function (req, res) {
 
 });
 
-var server = app.listen(3000, function () {
+var server = app.listen(config.port, function () {
   var host = server.address().address;
   var port = server.address().port;
 
