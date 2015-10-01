@@ -1,6 +1,6 @@
 var config = {
     "url" : "http://www.catsthatlooklikehitler.com/kitler/pics/kitler",
-    'port' : process.env.PORT||8000
+    'port' : process.env.PORT||3000
 };
 
 
@@ -13,31 +13,29 @@ var lwip = require('lwip');
 var app = express();
 
 app.all("/img/*/*", function (req, res) {
-    var width = req.params[0];
-    var height = req.params[1];
+    var width = parseInt(req.params[0]);
+    var height = parseInt(req.params[1]);
     var randImg = getRandomImage();
 
     request({url:randImg,  encoding: 'binary'}, function onImageResponse(err, imageResponse, imageBody) {
         if (err) throw err;
 
         var buffer = new Buffer(imageBody, "binary");
-
-        res.writeHead(200, {'Content-Type': 'image/jpg' });
-        res.end(buffer, 'binary');
-        return;
-        // TODO resizing stuff
-        lwip.open(buffer, 'jpg', function(err, image){
+        lwip.open(buffer, 'jpg', function(err, img){
             if (err) throw err;
 
-            lwip.create(width, height, "yellow", function(err, image){
+            img.resize(width, height, 'lanczos', function(err, img){
                 if (err) throw err;
+
+                img.toBuffer('jpg', function(err, buff){
+                    if (err) throw err;
+
+                    res.writeHead(200, {'Content-Type': 'image/jpg' });
+                    res.end(buff, 'binary');
+                });
             });
-            /*
-            image.resize(width, height, 'lanczos', function(err, image){
-                if (err) throw err;
-            });
-            */
         });
+
     });
 
 });
