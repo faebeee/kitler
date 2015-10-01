@@ -8,11 +8,13 @@
       "type": "git",
       "url": "https://github.com/faebeee/kittler.git"
   },
-
+  "engines": {
+      "node": "0.12.x"
+  },
   "dependencies": {
     "request": "*",
     "express": "*",
-    "lwip": "*"
+    "lwip": "0.0.4"
   },
   "private": true
 }
