@@ -101,13 +101,13 @@ var v1 = {
             var buffer = new Buffer(imageBody, "binary");
             lwip.open(buffer, 'jpg', function(err, img){
                 var size = width > height ? width : height;
-                img.resize(size, function(err, img){
+                //img.resize(size, function(err, img){
                     img.crop(width, height, function(err, img){
                         if (err) throw err;
                         img.filename = id;
                         core.sendBufferedImage(img, res);
                     });
-                });
+                //});
             });
         });
     }
