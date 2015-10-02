@@ -26,80 +26,8 @@ var server = app.listen(config.port, function () {
   console.log('Example app listening at http://%s:%s', host, port);
 });
 
-
-function getImage(width, height, callback, page){
-    page = page || 1;
-    flickr.get("photos.search", {"text":"kitler, cat"}, function(err, result){
-        if (err) return console.error(err);
-        var max = result.photos.photo.length;
-        var randId = Math.round( Math.random() * max );
-        var randImg = result.photos.photo[randId];
-
-        flickr.get("photos.getSizes", {"photo_id":randImg.id}, function(err, result){
-            if (err) return console.error(err);
-
-            var images = result.sizes.size, len = images.length;
-            for(var i=0; i < len; i++){
-                var image = images[i];
-                if(image.width >= width && image.height >= height){
-                    callback(image.source, randImg.id);
-                    return image.source;
-                }
-            }
-            console.warn('no image found. looking on page '+page);
-            if(page >= maxPageSearch){
-                throw ("No Image found in "+maxPageSearch+" Pages");
-            }
-            return getImage(width, height, callback, page+1);
-        });
-    });
-}
-
-function sendBufferedImage( img, res ){
-    img.toBuffer('jpg', function(err, buff){
-        if (err) throw err;
-
-        var filename = img.filename;
-
-        res.setHeader('Content-disposition', 'filename=' + filename);
-        res.writeHead(200, {'Content-Type': 'image/jpg' });
-        res.end(buff, 'binary');
-    });
-}
-
-function proceedImage(source, width, height, res, id){
-    width = width || null;
-    height = height || null;
-    request({url:source,  encoding: 'binary'}, function onImageResponse(err, imageResponse, imageBody) {
-        if (err) throw err;
-
-        var buffer = new Buffer(imageBody, "binary");
-        lwip.open(buffer, 'jpg', function(err, img){
-            if (err) throw err;
-            if(width && height){
-                img.crop(width, height, function(err, img){
-                    if (err) throw err;
-                    img.filename = id;
-                    sendBufferedImage(img, res);
-                });
-            }else{
-                sendBufferedImage(img, res);
-            }
-        });
-    });
-}
-
 app.get('/', function(req, res){
     res.sendfile(__dirname + '/index.html');
-});
-
-app.all("/img/*/*", function (req, res) {
-    var width = parseInt(req.params[0]);
-    var height = parseInt(req.params[1]);
-
-    getImage(width, height, function( uri, id ){
-        proceedImage(uri, width, height, res, id);
-    });
 });
 
 app.all("/my/*/*/*", function (req, res) {
@@ -119,3 +47,122 @@ app.all("/my/*/*/*", function (req, res) {
         }
     });
 });
+
+app.all("/v1/*/*", function(req, res){
+    var width = parseInt(req.params[0]);
+    var height = parseInt(req.params[1]);
+
+
+    v1.getImage(width, height, function( uri, id ){
+        v1.proceedImage(uri, width, height, res, id);
+    });
+});
+
+
+app.all("/v2/*/*", function(req, res){
+    var width = parseInt(req.params[0]);
+    var height = parseInt(req.params[1]);
+
+
+    v2.getImage(width, height, function( uri, id ){
+        v2.proceedImage(uri, width, height, res, id);
+    });
+});
+
+var core = {
+
+    sendBufferedImage : function ( img, res ){
+        img.toBuffer('jpg', function(err, buff){
+            if (err) throw err;
+
+            var filename = img.filename;
+
+            res.setHeader('Content-disposition', 'filename=' + filename);
+            res.writeHead(200, {'Content-Type': 'image/jpg' });
+            res.end(buff, 'binary');
+        });
+    }
+}
+
+var v1 = {
+
+    getImage : function (width, height, callback, page){
+        var randomId = Math.round( Math.random() * 8000 );
+        var url = config.url+""+randomId+".jpg";
+        callback(url, randomId);
+    },
+
+    proceedImage : function (source, width, height, res, id){
+        width = width || null;
+        height = height || null;
+        request({url:source,  encoding: 'binary'}, function (err, imageResponse, imageBody) {
+            if (err) throw err;
+
+            var buffer = new Buffer(imageBody, "binary");
+            lwip.open(buffer, 'jpg', function(err, img){
+                var size = width > height ? width : height;
+                img.resize(size, function(err, img){
+                    img.crop(width, height, function(err, img){
+                        if (err) throw err;
+                        img.filename = id;
+                        core.sendBufferedImage(img, res);
+                    });
+                });
+            });
+        });
+    }
+}
+
+
+var v2 = {
+
+    getImage : function (width, height, callback, page){
+        page = page || 1;
+        flickr.get("photos.search", {"text":"kitler, cat"}, function(err, result){
+            if (err) return console.error(err);
+            var max = result.photos.photo.length;
+            var randId = Math.round( Math.random() * max );
+            var randImg = result.photos.photo[randId];
+
+            flickr.get("photos.getSizes", {"photo_id":randImg.id}, function(err, result){
+                if (err) return console.error(err);
+
+                var images = result.sizes.size, len = images.length;
+                for(var i=0; i < len; i++){
+                    var image = images[i];
+                    if(image.width >= width && image.height >= height){
+                        callback(image.source, randImg.id);
+                        return image.source;
+                    }
+                }
+                console.warn('no image found. looking on page '+page);
+                if(page >= maxPageSearch){
+                    throw ("No Image found in "+maxPageSearch+" Pages");
+                }
+                return v2.getImage(width, height, callback, page+1);
+            });
+        });
+    },
+
+    proceedImage : function (source, width, height, res, id){
+        width = width || null;
+        height = height || null;
+        request({url:source,  encoding: 'binary'}, function (err, imageResponse, imageBody) {
+            if (err) throw err;
+
+            var buffer = new Buffer(imageBody, "binary");
+            lwip.open(buffer, 'jpg', function(err, img){
+                if (err) throw err;
+                if(width && height){
+                    img.crop(width, height, function(err, img){
+                        if (err) throw err;
+                        img.filename = id;
+                        core.sendBufferedImage(img, res);
+                    });
+                }else{
+                    core.sendBufferedImage(img, res);
+                }
+            });
+        });
+    }
+}
