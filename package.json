@@ -18,7 +18,7 @@
     "request": "*",
     "express": "*",
     "lwip": "0.0.4",
-    'flickerapi' : "*"
+    "flickrapi" : "0.3.*"
   },
   "private": true
 }
