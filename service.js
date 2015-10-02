@@ -3,7 +3,6 @@ var config = {
     'port' : process.env.PORT||3000,
     "flickr" : {
         "api" : "fc9228d0f911430403a814d59edaf13b",
-        "secret" : "085b8c8b641fc96c"
     }
 };
 
@@ -15,8 +14,10 @@ var lwip = require('lwip');
 var Flickr = require("node-flickr");
 var keys = {"api_key": config.flickr.api};
 flickr = new Flickr(keys);
+var maxPageSearch = 15;
 
-function getImage(width, height, callback){
+function getImage(width, height, callback, page){
+    page = page || 1;
     flickr.get("photos.search", {"text":"kitler, cat"}, function(err, result){
         if (err) return console.error(err);
         var max = result.photos.photo.length;
@@ -34,7 +35,11 @@ function getImage(width, height, callback){
                     return image.source;
                 }
             }
-            throw "no image found";
+            console.log('no image found. looking on page '+page);
+            if(page >= maxPageSearch){
+                throw ("No Image found in "+maxPageSearch+" Pages");
+            }
+            return getImage(width, height, callback, page+1);
         });
     });
 }
@@ -64,11 +69,8 @@ app.all("/img/*/*", function (req, res) {
                     });
                 });
             });
-
         });
-
     });
-
 });
 
 var server = app.listen(config.port, function () {
