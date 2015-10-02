@@ -17,6 +17,8 @@ var flickr = new Flickr(keys);
 var maxPageSearch = 15;
 var app = express();
 
+app.use(express.static(__dirname+'/html'));
+
 var server = app.listen(config.port, function () {
   var host = server.address().address;
   var port = server.address().port;
@@ -86,6 +88,10 @@ function proceedImage(source, width, height, res, id){
         });
     });
 }
+
+app.get('/', function(req, res){
+    res.sendfile(__dirname + '/index.html');
+});
 
 app.all("/img/*/*", function (req, res) {
     var width = parseInt(req.params[0]);
