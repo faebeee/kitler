@@ -40,7 +40,7 @@ function getImage(width, height, callback, page){
             for(var i=0; i < len; i++){
                 var image = images[i];
                 if(image.width >= width && image.height >= height){
-                    callback(image.source);
+                    callback(image.source, randImg.id);
                     return image.source;
                 }
             }
@@ -57,12 +57,15 @@ function sendBufferedImage( img, res ){
     img.toBuffer('jpg', function(err, buff){
         if (err) throw err;
 
+        var filename = img.filename;
+
+        res.setHeader('Content-disposition', 'filename=' + filename);
         res.writeHead(200, {'Content-Type': 'image/jpg' });
         res.end(buff, 'binary');
     });
 }
 
-function proceedImage(source, width, height, res){
+function proceedImage(source, width, height, res, id){
     width = width || null;
     height = height || null;
     request({url:source,  encoding: 'binary'}, function onImageResponse(err, imageResponse, imageBody) {
@@ -74,6 +77,7 @@ function proceedImage(source, width, height, res){
             if(width && height){
                 img.crop(width, height, function(err, img){
                     if (err) throw err;
+                    img.filename = id;
                     sendBufferedImage(img, res);
                 });
             }else{
@@ -87,8 +91,8 @@ app.all("/img/*/*", function (req, res) {
     var width = parseInt(req.params[0]);
     var height = parseInt(req.params[1]);
 
-    getImage(width, height, function( uri ){
-        proceedImage(uri, width, height, res);
+    getImage(width, height, function( uri, id ){
+        proceedImage(uri, width, height, res, id);
     });
 });
 
@@ -103,7 +107,7 @@ app.all("/my/*/*/*", function (req, res) {
         for(var i=0; i < len; i++){
             var image = images[i];
             if(image.width >= width && image.height >= height){
-                proceedImage(image.source, width, height, res);
+                proceedImage(image.source, width, height, res, id);
                 return;
             }
         }
