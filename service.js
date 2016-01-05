@@ -63,14 +63,12 @@ app.all("/v2/*/*", function(req, res){
     var width = parseInt(req.params[0]);
     var height = parseInt(req.params[1]);
 
-
     v2.getImage(width, height, function( uri, id ){
         v2.proceedImage(uri, width, height, res, id);
     });
 });
 
 var core = {
-
     sendBufferedImage : function ( img, res ){
         img.toBuffer('jpg', function(err, buff){
             if (err) throw err;
@@ -85,7 +83,6 @@ var core = {
 }
 
 var v1 = {
-
     getImage : function (width, height, callback, page){
         var randomId = Math.round( Math.random() * 8000 );
         var url = config.url+""+randomId+".jpg";

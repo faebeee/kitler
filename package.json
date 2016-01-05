@@ -17,7 +17,7 @@
   "dependencies": {
     "request": "*",
     "express": "*",
-    "lwip": "0.0.4",
+    "lwip": "*",
     "node-flickr" : "*"
   },
   "private": true
