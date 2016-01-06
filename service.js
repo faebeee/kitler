@@ -90,8 +90,12 @@ var v1 = {
     },
 
     proceedImage : function (source, width, height, res, id){
-        width = width || null;
-        height = height || null;
+        width = width || 100;
+        height = height || 100;
+
+        width = width == 0 ? 100 : width;
+        height = height == 0 ? 100 : height;
+
         request({url:source,  encoding: 'binary'}, function (err, imageResponse, imageBody) {
             if (err) throw err;
 
@@ -144,6 +148,10 @@ var v2 = {
     proceedImage : function (source, width, height, res, id){
         width = width || null;
         height = height || null;
+
+        width = width == 0 ? 100 : width;
+        height = height == 0 ? 100 : height;
+
         request({url:source,  encoding: 'binary'}, function (err, imageResponse, imageBody) {
             if (err) throw err;
 
