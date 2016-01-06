@@ -14,7 +14,7 @@ var lwip = require('lwip');
 var Flickr = require("node-flickr");
 var keys = {"api_key": config.flickr.api};
 var flickr = new Flickr(keys);
-var maxPageSearch = 15;
+var maxPageSearch = 4;
 var app = express();
 
 app.use(express.static(__dirname+'/html'));
@@ -138,7 +138,7 @@ var v2 = {
                 }
                 console.warn('no image found. looking on page '+page);
                 if(page >= maxPageSearch){
-                    throw ("No Image found in "+maxPageSearch+" Pages");
+                    return "http://kitler.herokuapp.com/img/icon.png"
                 }
                 return v2.getImage(width, height, callback, page+1);
             });
