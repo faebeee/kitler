@@ -114,7 +114,6 @@ var v1 = {
     }
 }
 
-
 var v2 = {
 
     getImage : function (width, height, callback, page){
@@ -123,7 +122,7 @@ var v2 = {
             if (err) return console.error(err);
             var max = result.photos.photo.length;
             var randId = Math.round( Math.random() * max );
-            var randImg = result.photos.photo[randId];
+            var randImg = result.photos.photo[randId-1];
 
             flickr.get("photos.getSizes", {"photo_id":randImg.id}, function(err, result){
                 if (err) return console.error(err);
