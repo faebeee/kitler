@@ -180,7 +180,7 @@ function maxSize (width, height){
     var _height = height;
 
     if(_width > 2000 ){
-        height = 2000;
+        width = 2000;
     }
 
     if(_height > 2000 ){
