@@ -49,21 +49,25 @@ app.all("/my/*/*/*", function (req, res) {
 });
 
 app.all("/v1/*/*", function(req, res){
-    var width = parseInt(req.params[0]);
-    var height = parseInt(req.params[1]);
+    var size = maxSize(parseInt(req.params[0]), parseInt(req.params[1]));
 
+    var width = size.width;
+    var height = size.height;
 
-    v1.getImage(width, height, function( uri, id ){
+    v1.getImage(width, height, function( uri, id ) {
         v1.proceedImage(uri, width, height, res, id);
     });
 });
 
 
 app.all("/v2/*/*", function(req, res){
-    var width = parseInt(req.params[0]);
-    var height = parseInt(req.params[1]);
+    var size = maxSize(parseInt(req.params[0]), parseInt(req.params[1]));
+
+    var width = size.width;
+    var height = size.height;
 
     v2.getImage(width, height, function( uri, id ){
+
         v2.proceedImage(uri, width, height, res, id);
     });
 });
@@ -169,4 +173,19 @@ var v2 = {
             });
         });
     }
+}
+
+function maxSize (width, height){
+    var _width = width;
+    var _height = height;
+
+    if(_width > 2000 ){
+        height = 2000;
+    }
+
+    if(_height > 2000 ){
+        height = 2000;
+    }
+
+    return {width : width, height : height};
 }
